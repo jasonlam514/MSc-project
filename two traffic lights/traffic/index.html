@@ -1,0 +1,70 @@
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Cognitive model driving simulator</title>
+  <link rel="stylesheet" href="css/style.css">
+
+ <style>
+.button {
+  position: absolute;
+  top: 215px;
+  left: 10px;
+  display: inline-block;
+  padding: 10px 25px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 5px #999;
+  width: 100px;
+  display: inline-block;
+}
+
+.button:hover {background-color: #3e8e41}
+
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+</style>
+</head>
+
+<body>
+  <!--I recommend Google Chrome to view this pen, firefox users could have issues, I tryed running it in firefox and it causes my machine to freeze up fyi so you're better to use a different browser
+-->
+<canvas></canvas>
+<div class="box">
+  <a href="https://codepen.io/jasonlam514/full/KvpXbO" target="_blank">View in full view</a>
+  
+  <br><br>
+    Frame rate:
+  <br>
+    <input type="range" id="fr" max="30" min="1" value="15" onChange="init();">
+      <span class="frame_no">15</span>
+      <br><br>
+    Animation speed:
+  <br>
+    <input type="range" id="sp" max="15" min="1" value="8" onChange="set();">
+      <span class="ani_speed">8</span>
+<br><br>
+<input type="checkbox" id="distraction" name="distraction" value="dis" checked/> 
+<label for="distraction">Show near/far point</label><br>(not shown if distracted)
+<input onClick="pause();" type="button" class="button" value="Pause" id="as">
+<span class="prop"></span>
+<span class="prob"></span>
+<span class="ini"></span>
+<span class="near"></span>
+<span class="far"></span>
+<span class="assist"></span>
+</div>
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+    <script src="js/index.js"></script>
+</body>
+</html>
