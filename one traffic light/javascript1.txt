@@ -347,7 +347,7 @@ if (run == true) {
   }
 
   function getacc(val) {
-    this.acc = [0, 1, -1, -2];
+    this.acc = [0, 3, -1, -2];
     return this.acc[val];
   }
 

@@ -1,4 +1,4 @@
-var result = 0.9;
+var result = 0.9999999999999999;
 var ini = 0;
 var near = 0;
 var far = 0;
@@ -6,32 +6,27 @@ var assist = false;
 var prop = 'Pmax=? [ ((safe_drive)&(non_stop)) U (reach_end) ]';
 var vars = ['car_pos','task_active','M_active','D_active','C_active','E_update','M_update','near_point','far_point','near_set','far_set','near_found','near_distracted','far_distracted','memory_1','memory_1_dist','memory_1_limit','memory_2','memory_2_dist','memory_3','memory_3_dist','process_near','process_far','decision','distance','velocity','set_acc','assist','light_signal','road_update','counter'];
 var data = [
-[0,true,false,false,false,false,false,4,44,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,2,2,true,0,3,true,2],
-[2,true,false,false,false,false,false,6,46,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,6,4,true,0,3,true,3],
-[8,true,false,false,false,false,false,12,52,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,10,6,true,0,4,true,1],
-[18,true,false,false,false,false,false,22,62,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,1],
-[30,true,false,false,false,false,false,34,74,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,2],
-[42,true,false,false,false,false,false,46,86,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,3],
-[54,true,false,false,false,false,false,58,98,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,4],
-[66,true,false,false,false,false,false,70,110,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,5],
-[78,true,false,false,false,false,false,82,122,true,true,true,false,false,1,43,9,0,-1,0,-1,false,true,3,8,2,true,0,2,true,1],
-[86,true,false,false,false,false,false,90,130,true,true,true,false,false,2,35,9,1,35,0,-1,false,true,1,6,4,true,0,3,true,1],
-[92,true,false,false,false,false,false,96,136,true,true,true,false,false,3,29,9,2,29,1,29,false,true,0,8,4,true,0,3,true,2],
-[100,true,false,false,false,false,false,104,144,true,true,true,false,false,3,21,9,3,21,2,21,false,true,0,8,4,true,0,3,true,3],
-[108,true,false,false,false,false,false,112,152,true,true,true,false,false,3,13,9,3,13,3,13,false,true,0,8,4,true,0,4,true,1],
-[116,true,false,false,false,false,false,120,160,true,true,true,false,false,4,5,9,3,5,3,5,false,true,3,4,0,true,0,1,true,1],
-[120,true,false,false,false,false,false,124,160,true,false,true,false,false,1,1,9,4,1,3,1,true,false,3,0,0,true,0,1,true,2],
-[120,true,false,false,false,false,false,124,160,true,false,true,false,false,1,1,9,1,1,4,1,true,false,3,0,0,true,0,1,true,3],
-[120,true,false,false,false,false,false,124,160,true,false,true,false,false,1,1,9,1,1,1,1,true,false,3,0,0,true,0,1,true,4],
-[120,true,false,false,false,false,false,124,160,true,false,true,false,false,1,1,9,1,1,1,1,true,false,3,0,0,true,0,1,true,5],
-[120,true,false,false,false,false,false,124,160,true,false,true,false,false,1,1,9,1,1,1,1,true,false,3,0,0,true,0,2,true,1],
-[120,true,false,false,false,false,false,124,164,true,true,true,false,false,2,1,9,1,1,1,1,false,true,1,2,2,true,0,3,true,1],
-[122,true,false,false,false,false,false,126,166,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,6,4,true,0,3,true,2],
-[128,true,false,false,false,false,false,132,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,10,6,true,0,3,true,3],
-[138,true,false,false,false,false,false,142,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,4,true,1],
-[150,true,false,false,false,false,false,154,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,1],
-[162,true,false,false,false,false,false,166,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,2],
-[170,true,true,false,false,false,false,170,170,true,false,false,false,false,0,-1,38,0,-1,0,-1,false,false,0,12,6,true,0,1,false,2]
+[0,true,false,false,false,true,false,4,44,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,6,6,true,0,1,false,1],
+[6,true,false,false,false,true,false,10,50,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,2],
+[18,true,false,false,false,true,false,22,62,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,3],
+[30,true,false,false,false,true,false,34,74,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,4],
+[42,true,false,false,false,true,false,46,86,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,5],
+[54,true,false,false,false,true,false,58,98,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,2,false,1],
+[66,true,false,false,false,true,false,70,110,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,1],
+[78,true,false,false,false,true,false,82,122,true,true,true,false,false,3,43,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,2],
+[90,true,false,false,false,true,false,94,134,true,true,true,false,false,3,31,9,3,31,0,-1,false,true,0,12,6,true,0,3,false,3],
+[102,true,false,false,false,true,false,106,146,true,true,true,false,false,4,19,9,3,19,3,19,false,true,3,8,2,true,0,4,false,1],
+[110,true,false,false,false,true,false,114,154,true,true,true,false,false,1,11,9,4,11,3,11,false,true,0,4,2,true,0,1,false,1],
+[114,true,false,false,false,true,false,118,158,true,true,true,false,false,1,7,9,1,7,4,7,false,true,0,4,2,true,0,1,false,2],
+[118,true,false,false,false,true,false,122,158,true,false,true,false,false,1,3,9,1,3,1,3,true,false,3,0,0,true,0,1,false,3],
+[118,true,false,false,false,true,false,122,158,true,false,true,false,false,1,3,9,1,3,1,3,true,false,3,0,0,true,0,1,false,4],
+[118,true,false,false,false,true,false,122,158,true,false,true,false,false,1,3,9,1,3,1,3,true,false,3,0,0,true,0,1,false,5],
+[118,true,false,false,false,true,false,122,162,true,true,true,false,false,2,3,9,1,3,1,3,false,true,1,6,6,true,0,2,false,1],
+[124,true,false,false,false,true,false,128,168,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,1],
+[136,true,false,false,false,true,false,140,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,2],
+[148,true,false,false,false,true,false,152,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,3],
+[160,true,false,false,false,true,false,164,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,4,false,1],
+[170,true,true,false,false,false,false,170,170,true,false,false,false,false,0,-1,38,0,-1,0,-1,false,false,0,12,6,true,0,1,false,1]
 ];
 var violation = false;
 var t = 2;
@@ -383,7 +378,7 @@ if (run == true) {
   }
 
   function getacc(val) {
-    this.acc = [0, 1, -1, -2];
+    this.acc = [0, 3, -1, -2];
     return this.acc[val];
   }
 

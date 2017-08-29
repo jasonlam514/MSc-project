@@ -3,7 +3,8 @@ mdp
 const int N = 170; //road length
 const int near_dist = 4; //distance between vehicle and near point in terms of meters
 const int far_dist = 40 + near_dist; //distance between vehicle and far point in terms of meters
-const int min_acc = -10; //minimum accerleration of the assistive mode
+const int max_dec = -10; //maximum deceleration in the assistive mode
+const int max_acc = 10;
 const bool assist_mode;
 global car_pos : [0..N] init 0; //current position of the car
 global task_active : bool init false;
@@ -24,7 +25,6 @@ const int acceleration = 3;
 const int deceleration = -1;
 const int braking = -2;
 const int road_speed_limit = 9;
-//const int harsh_braking = -3;
 //*************************Decision********************************
 const int keep_speed = 0;
 const int accelerate = 1;
@@ -32,7 +32,6 @@ const int decelerate = 2;
 const int brake = 3;
 const int slow_speed = 3;
 const int medium_speed = 5;
-//const int fast_speed = road_speed_limit;
 //*************************Signal**********************************
 const int no_sign = 0;
 const int red = 1;
@@ -68,7 +67,7 @@ formula attentive = !(near_distracted | far_distracted);
 formula total_distraction = near_distracted & far_distracted;
 formula assistive_region = traffic_light_pos - car_pos <= 40 & traffic_light_pos - car_pos >= 0;
 formula a = (assist_mode)?(((decision = accelerate)?acceleration : ((decision = decelerate)?deceleration:((decision = brake)?braking:keep_speed))) + assist) : ((decision = accelerate)?acceleration : ((decision = decelerate)?deceleration:((decision = brake)?braking:keep_speed)));
-formula acc = a>=min_acc?a:min_acc;
+formula acc = a>=max_dec?(a<=max_acc?a:max_acc):max_dec;
 formula v = (acc*t + velocity) > 0 ?(acc*t + velocity) : 0;
 const int t = 2;
 formula d = 2*acc + velocity*t; //0.5*a*pow(t,2) + v*t + car_pos , double is not supported
@@ -151,7 +150,7 @@ module Control
 distance : [0..N];
 velocity : [0..max(maximum_speed,initial_speed)] init initial_speed; 
 set_acc : bool init true;
-assist : [min_acc..0] init 0;
+assist : [max_dec..0] init 0;
 
 [] task_active & C_active & decision = brake & v > 0 & (!set_acc | !assist_mode) -> (velocity' = v) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //apply brake
 [] task_active & C_active & ((decision = brake | decision = decelerate) & v <= 0) & (!set_acc | !assist_mode) -> (velocity' = 0) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //vehicle stops

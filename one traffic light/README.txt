@@ -1,24 +1,19 @@
-For Linux/MacOS user, please run run.sh to generate a new adversary. Run simulate.sh for a new trace with same property and parameters.
-For Windows user, please run run.bat to generate a new adversary. Run simulate.bat for a new trace with same property and parameters.
+For Linux/MacOS user, please run run.sh for the first time to generate a new adversary, run simulate.sh for a new trace with same property and parameters.
+For Windows user, please run run.bat for the first time to generate a new adversary, run simulate.bat for a new trace with same property and parameters.
 
 Simulator is written in javascript and HTML5.
 Google Chrome works best with the simulator file which is located at '/traffic/index.html'.
 Information of the trace for the simulator is stored at '/traffic/js/index.js'(***MacOS user might ecounter syntax error caused by the first few lines of codes).
 
-Please allow a longer time for generating files using run.sh/run.bat
-Use -javamaxmem __/-Xmx__ to increase the memory limit of Java Virtual Machine
-e.g. prism -javamaxmem 4g in run.sh/ prism -Xmx8g -Xss1g in run.bat
-
-Use -cuddmaxmem to increase CUDD memory
-e.g. prism -cuddmaxmem 2g
+Please allow up to 40 minutes for generating files using run.sh/run.bat
+Windows might encounter out of memory error for certain combinations of parameters, if so, please use PRISM 64-bit on Mac/Linux for those parameters
 
 Requirements
 ---------------------------
 Python version 2.7 or above (v3.6.2 is used in development)
-PRISM version 4.3.1 or above (v4.3.1 is used in development) 64-bit version preferred
-Java 7 or above, 64-bit version preferred
+PRISM version 4.3.1 or above (v4.3.1 is used in development)
 Web browser(Google Chrome preferred)
-8GB RAM preferred
+Enough memory space - the states file can take up hundreds of megabytes
 
 Parameters to the script file
 ---------------------------
