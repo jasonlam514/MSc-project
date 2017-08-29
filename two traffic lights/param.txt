@@ -1,5 +1,5 @@
 Pmax=? [ ((safe_drive)&(non_stop)) U (reach_end) ]
 2
-0.3
-0.2
-false
+0
+0
+true

@@ -45,9 +45,9 @@ var cycle;
 var l;
 var time;
 var test = '2';
-var road_length = 240;
-var light_pos_1 = 121;
-var light_pos_2 = 200;
+var road_length = 270;
+var light_pos_1 = 40;
+var light_pos_2 = 250;
 var checked = true;
 
 var BrowserDetect = {
@@ -347,7 +347,7 @@ if (run == true) {
   }
 
   function getacc(val) {
-    this.acc = [0, 1, -1, -2];
+    this.acc = [0, 3, -1, -2];
     return this.acc[val];
   }
 

@@ -18,7 +18,6 @@ Python version 2.7 or above (v3.6.2 is used in development)
 PRISM version 4.3.1 or above (v4.3.1 is used in development) 64-bit version preferred
 Java 7 or above, 64-bit version preferred
 Web browser(Google Chrome preferred)
-Enough RAM
 
 Parameters to the script file
 ---------------------------

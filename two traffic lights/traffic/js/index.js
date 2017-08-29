@@ -1,46 +1,42 @@
-var result = 0.7590385431895754;
+var result = 0.9999999999999999;
 var ini = 2;
-var near = 0.3;
-var far = 0.2;
-var assist = false;
+var near = 0;
+var far = 0;
+var assist = true;
 var prop = 'Pmax=? [ ((safe_drive)&(non_stop)) U (reach_end) ]';
 var vars = ['car_pos','task_active','M_active','D_active','C_active','E_update','M_update','traffic_light_pos','near_point','far_point','near_set','far_set','near_found','near_distracted','far_distracted','memory_1','memory_1_dist','memory_1_limit','memory_2','memory_2_dist','memory_3','memory_3_dist','process_near','process_far','decision','distance','velocity','set_acc','assist','light_signal','road_update','counter'];
 var data = [
-[0,true,false,false,false,true,false,121,4,44,true,true,true,true,false,0,-1,9,0,-1,0,-1,false,true,1,6,4,true,0,1,false,1],
-[6,true,false,false,false,true,false,121,10,50,true,true,true,false,true,0,-1,9,0,-1,0,-1,false,true,1,10,6,true,0,1,false,2],
-[16,true,false,false,false,true,false,121,20,60,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,3],
-[28,true,false,false,false,true,false,121,32,72,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,4],
-[40,true,false,false,false,true,false,121,44,84,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,5],
-[52,true,false,false,false,true,false,121,56,96,true,true,true,false,true,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,2,false,1],
-[64,true,false,false,false,true,false,121,68,108,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,1],
-[76,true,false,false,false,true,false,121,80,120,true,true,true,true,true,0,-1,40,0,-1,0,-1,false,true,0,12,6,true,0,3,false,2],
-[88,true,false,false,false,true,false,121,92,132,true,true,true,false,false,3,33,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,3],
-[100,true,false,false,false,true,false,121,104,144,true,true,true,false,false,4,21,9,3,21,0,-1,false,true,3,8,2,true,0,4,false,1],
-[108,true,false,false,false,true,false,121,112,152,true,true,true,true,false,1,13,9,4,13,3,13,false,true,0,4,2,true,0,1,false,1],
-[112,true,false,false,false,true,false,121,116,156,true,true,true,false,true,0,-1,9,1,9,4,9,false,true,0,4,2,true,0,1,false,2],
-[116,true,false,false,false,true,false,121,120,160,true,true,true,false,true,0,-1,9,0,-1,1,5,false,true,0,4,2,true,0,1,false,3],
-[120,true,false,false,false,true,false,121,124,164,true,true,true,true,false,0,1,9,0,-1,0,-1,false,true,1,6,4,true,0,1,false,4],
-[126,true,false,false,false,true,false,200,130,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,1,10,6,true,0,1,false,5],
-[136,true,false,false,false,true,false,200,140,180,true,true,true,true,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,2,false,1],
-[148,true,false,false,false,true,false,200,152,192,true,true,true,true,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,1],
-[160,true,false,false,false,true,false,200,164,204,true,true,true,false,false,3,40,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,2],
-[172,true,false,false,false,true,false,200,176,216,true,true,true,true,false,3,28,9,3,28,0,-1,false,true,0,12,6,true,0,3,false,3],
-[184,true,false,false,false,true,false,200,188,228,true,true,true,false,false,4,16,9,3,16,3,16,false,true,3,8,2,true,0,4,false,1],
-[192,true,false,false,false,true,false,200,196,236,true,true,true,false,true,0,-1,9,4,8,3,8,false,true,0,4,2,true,0,1,false,1],
-[196,true,false,false,false,true,false,200,200,236,true,false,true,false,true,1,4,9,0,-1,4,4,true,false,3,0,0,true,0,1,false,2],
-[196,true,false,false,false,true,false,200,200,236,true,false,true,false,true,1,4,9,1,4,0,-1,true,false,3,0,0,true,0,1,false,3],
-[196,true,false,false,false,true,false,200,200,236,true,false,true,false,true,1,4,9,1,4,1,4,true,false,3,0,0,true,0,1,false,4],
-[196,true,false,false,false,true,false,200,200,236,true,false,true,false,true,1,4,9,1,4,1,4,true,false,3,0,0,true,0,1,false,5],
-[196,true,false,false,false,true,false,200,200,240,true,true,true,false,false,2,4,9,1,4,1,4,false,true,1,2,2,true,0,2,false,1],
-[198,true,false,false,false,true,false,200,202,240,true,true,true,false,false,3,2,9,2,2,1,2,false,true,1,6,4,true,0,3,false,1],
-[204,true,false,false,false,true,false,200,208,240,true,true,true,false,true,0,-1,9,0,-1,0,-1,false,true,1,10,6,true,0,3,false,2],
-[214,true,false,false,false,true,false,200,218,240,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,3],
-[226,true,false,false,false,true,false,200,230,240,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,4,false,1],
-[238,true,false,false,false,true,false,200,240,240,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,1],
-[240,true,false,false,false,true,false,200,240,240,true,true,true,true,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,false,2],
-[240,true,false,false,false,false,false,200,240,240,true,true,true,true,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,1,true,3]
+[0,true,false,false,false,true,false,40,4,44,true,true,true,false,false,1,40,9,0,-1,0,-1,false,true,0,4,2,true,0,1,false,1],
+[4,true,false,false,false,true,false,40,8,48,true,true,true,false,false,1,36,9,1,36,0,-1,false,true,0,4,2,true,0,1,false,2],
+[8,true,false,false,false,true,false,40,12,52,true,true,true,false,false,1,32,9,1,32,1,32,false,true,0,4,2,true,0,1,false,3],
+[12,true,false,false,false,true,false,40,16,56,true,true,true,false,false,1,28,9,1,28,1,28,false,true,0,4,2,true,0,1,false,4],
+[16,true,false,false,false,true,false,40,20,60,true,true,true,false,false,1,24,9,1,24,1,24,false,true,0,4,2,true,0,1,false,5],
+[20,true,false,false,false,true,false,40,24,64,true,true,true,false,false,2,20,9,1,20,1,20,false,true,1,10,8,true,0,2,false,1],
+[30,true,false,false,false,true,false,40,34,74,true,true,true,false,false,3,10,9,2,10,1,10,false,true,0,16,8,true,0,3,false,1],
+[46,true,false,false,false,true,false,250,50,90,true,true,true,false,false,0,-1,9,3,-1,2,-1,false,true,0,16,8,true,0,3,false,2],
+[62,true,false,false,false,true,false,250,66,106,true,true,true,false,false,0,-1,9,0,-1,3,-1,false,true,0,16,8,true,0,3,false,3],
+[78,true,false,false,false,true,false,250,82,122,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,4,false,1],
+[94,true,false,false,false,true,false,250,98,138,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,1,false,1],
+[110,true,false,false,false,true,false,250,114,154,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,1,false,2],
+[126,true,false,false,false,true,false,250,130,170,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,1,false,3],
+[142,true,false,false,false,true,false,250,146,186,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,1,false,4],
+[158,true,false,false,false,true,false,250,162,202,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,1,false,5],
+[174,true,false,false,false,true,false,250,178,218,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,2,false,1],
+[190,true,false,false,false,true,false,250,194,234,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,16,8,true,0,3,false,1],
+[206,true,false,false,false,true,false,250,210,250,true,true,true,false,false,3,44,9,0,-1,0,-1,false,true,0,16,8,true,0,3,false,2],
+[222,true,false,false,false,true,false,250,226,266,true,true,true,false,false,3,28,9,3,28,0,-1,false,true,0,16,8,true,0,3,false,3],
+[238,true,false,false,false,true,false,250,242,270,true,true,true,false,false,4,12,9,3,12,3,12,false,true,3,12,4,true,0,4,false,1],
+[250,true,false,false,false,true,false,250,254,270,true,false,true,false,false,1,0,9,4,0,3,0,true,false,3,0,0,true,-2,1,false,1],
+[250,true,false,false,false,true,false,250,254,270,true,false,true,false,false,1,0,9,1,0,4,0,true,false,3,0,0,true,0,1,false,2],
+[250,true,false,false,false,true,false,250,254,270,true,false,true,false,false,1,0,9,1,0,1,0,true,false,3,0,0,true,0,1,false,3],
+[250,true,false,false,false,true,false,250,254,270,true,false,true,false,false,1,0,9,1,0,1,0,true,false,3,0,0,true,0,1,false,4],
+[250,true,false,false,false,true,false,250,254,270,true,false,true,false,false,1,0,9,1,0,1,0,true,false,3,0,0,true,0,1,false,5],
+[250,true,false,false,false,true,false,250,254,270,true,true,true,false,false,2,0,9,1,0,1,0,false,true,1,6,6,true,0,2,false,1],
+[256,true,false,false,false,true,false,250,260,270,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,1],
+[268,true,false,false,false,true,false,250,270,270,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,2],
+[270,true,true,false,false,false,true,250,270,270,true,true,true,false,false,0,-1,9,0,-1,0,-1,false,true,0,12,6,true,0,3,false,3]
 ];
-var violation = true;
+var violation = false;
 var t = 2;
 var ratio = 4;
 var car_pos = vars.indexOf("car_pos");
@@ -88,9 +84,9 @@ var cycle;
 var l;
 var time;
 var test = '2';
-var road_length = 240;
-var light_pos_1 = 121;
-var light_pos_2 = 200;
+var road_length = 270;
+var light_pos_1 = 40;
+var light_pos_2 = 250;
 var checked = true;
 
 var BrowserDetect = {
@@ -390,7 +386,7 @@ if (run == true) {
   }
 
   function getacc(val) {
-    this.acc = [0, 1, -1, -2];
+    this.acc = [0, 3, -1, -2];
     return this.acc[val];
   }
 

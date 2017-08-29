@@ -1,7 +1,7 @@
 # ctrl+k block comment
 initial = "0"
 row = 0
-road_length = 240
+road_length = 270
 
 import os, sys
 import random

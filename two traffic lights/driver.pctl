@@ -1,4 +1,4 @@
-// total minimum time for the car to get past the traffic light (correct adv)
+// total minimum time for the car to get past the traffic light
 R{"time_passed"}min=? [ F car_pos>traffic_light_pos ]
 
 // safety property alternative form(using until) incorrect adv
@@ -9,32 +9,32 @@ Pmin=? [ ((safe_drive)&(non_stop)) U (reach_end) ]
 // safety property(it is not the case that eventually the car is at red light and the car is beyond the traffic light after one cycle )
 Pmax=? [ !(F ((car_pos<=traffic_light_pos&light_signal=red)&(X (car_pos>traffic_light_pos)))) ]
 
-// minimum number of cycles for the car to get past the traffic light(correct adv)
+// minimum number of cycles for the car to get past the traffic light
 R{"cycle_passed"}min=? [ F car_pos>traffic_light_pos ]
 
-// safety + liveness + car non stop before critical section(incorrect adv)
+// safety + liveness + car non stop before critical section
 Pmax=? [ !(F ((car_pos<=traffic_light_pos&light_signal=red)&(X (car_pos>traffic_light_pos))))&(F (car_pos=N))&(!(F (car_pos<traffic_light_pos-near_dist&velocity<=0))) ]
 
 Pmin=? [ !(F ((car_pos<=traffic_light_pos&light_signal=red)&(X (car_pos>traffic_light_pos))))&(F (car_pos=N))&(!(F (car_pos<traffic_light_pos-near_dist&velocity<=0))) ]
 
 P>=1 [ G (!"deadlock") ]
 
-// minimum number of cycle for the car to reach the end of road(correct adv)
+// minimum number of cycle for the car to reach the end of road
 R{"cycle_passed"}min=? [ F car_pos=N ]
 
-// car is non-stop before it reaches critical section (correct adv)
+// car is non-stop before it reaches critical section
 Pmax=? [ !(F (car_pos<traffic_light_pos-near_dist&velocity=0)) ]
 
 // liveness property, correct adv
 Pmax=? [ G safe_drive ]
 
-// car non-stop before critical section, liveness property (incorrect adv)
+// car non-stop before critical section, liveness property
 Pmax=? [ (G (car_pos<traffic_light_pos-near_dist=>velocity>0))&(F car_pos=N) ]
 
-// new safety property + car non_stop before critical section (correct adv)
+// new safety property + car non_stop before critical section
 Pmax=? [ G ((light_signal=red&road_update&car_pos<=traffic_light_pos)=>((distance+car_pos)<=traffic_light_pos))&(car_pos<traffic_light_pos-near_dist=>velocity>0) ]
 
-// new safety property (correct adv)
+// new safety property
 Pmax=? [ G ((light_signal=red&road_update&car_pos<=traffic_light_pos)=>((distance+car_pos)<=traffic_light_pos)) ]
 
 Pmax=? [ F reach_end ]
@@ -44,4 +44,6 @@ Pmax=? [ F !safe_drive ]
 Pmax=? [ G non_stop ]
 
 Pmax=? [ !(((safe_drive)&(non_stop)) U (reach_end)) ]
+
+R{"time_passed"}min=? [ safe_drive U reach_end ]
 
