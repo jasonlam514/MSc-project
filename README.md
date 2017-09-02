@@ -4,7 +4,7 @@ For Windows user, please run run.bat to generate a new adversary. Run simulate.b
 
 Simulator is written in javascript and HTML5.
 Google Chrome works best with the simulator file which is located at '/traffic/index.html'.
-Information of the trace for the simulator is stored at '/traffic/js/index.js'(***MacOS user might ecounter syntax error caused by the first few lines of codes).
+Information of the trace for the simulator is stored at '/traffic/js/index.js'
 
 Please allow a longer time for generating files using run.sh/run.bat
 Use -javamaxmem __/-Xmx__ to increase the memory limit of Java Virtual Machine
@@ -16,7 +16,7 @@ e.g. prism -cuddmaxmem 2g
 Requirements
 ---------------------------
 Python version 2.7 or above (v3.6.2 is used in development)
-PRISM version 4.3.1 or above (v4.3.1 is used in development) 64-bit version preferred
+PRISM version 4.3.1 or above (v4.4.beta is used in development) 64-bit version preferred
 Java 7 or above, 64-bit version preferred
 Web browser(Google Chrome preferred)
 Enough RAM
@@ -47,7 +47,7 @@ out.tra                         Transition matrix of the model exported from PRI
 out1.srew                       State rewards file for cycle exported from PRISM
 out2.srew                       State rewards file for time exported from PRISM
 adv.tra                         Adversary file of the model exported from PRISM with default property
-param.txt                       Containing parameters of the adversary file, generated from genpath.py
-res.txt                         Probability of satisfying the default property, exported from PRISM
-adv.txt                         Showing the trace of the most recent experiment, generated from genpath.py
+param.txt                       Containing parameters of the adversary file; generated from genpath.py
+res.txt                         Probability of satisfying the default property; exported from PRISM
+adv.txt                         Showing the trace of the most recent experiment; generated from genpath.py
 README.txt                      This file
