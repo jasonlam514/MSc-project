@@ -1,29 +1,29 @@
 mdp
 
-const int N = 270; //road length
-const int near_dist = 4; //distance between vehicle and near point in terms of meters
+const int N = 240; //road length
+const int near_dist = 4; //distance between vehicle and near point in meters
 const int far_dist = 40 + near_dist; //distance between vehicle and far point in terms of meters
-const int max_dec = -10; //maximum deceleration in the assistive mode
+const int max_dec = -10; //maximum deceleration for the assistance system
 const int max_acc = 10;
 const bool assist_mode;
 global car_pos : [0..N] init 0; //current position of the car
 global task_active : bool init false;
-global M_active : bool init false;
-global D_active : bool init false;
-global C_active : bool init false;
-global E_update : bool init false; 
-global M_update : bool init false;
+global M_active : bool init false; //Monitoring module
+global D_active : bool init false; //Decision making module
+global C_active : bool init false; //Control module
+global E_update : bool init false; //Environment module
+global M_update : bool init false; //Memory shift
 
 const bool change_light = true;
-const int traffic_light_pos_1 = 40;
+const int traffic_light_pos_1 = 40; //traffic light position
 const int traffic_light_pos_2 = 250;
 global traffic_light_pos : [0..N] init traffic_light_pos_1;
-const double near_distracted_prob;
-const double far_distracted_prob;
+const double near_distracted_prob; //probability of being distracted while monitoring near point
+const double far_distracted_prob; //probability of being distracted while monitoring far point
 //*************************Control*********************************
 const int initial_speed;
 const int maximum_speed = 38;
-const int acceleration = 3;
+const int acceleration = 1;
 const int deceleration = -1;
 const int braking = -2;
 const int road_speed_limit = 9;
@@ -46,6 +46,7 @@ const int red_amber_time = 1; //time(cycles) for red-amber light to change
 const int green_time = 3; //time(cycles) for green light to change
 const int amber_time = 1; //time(cycles) for amber/red-amber light to change
 
+//initialise light signal
 const double prob_red = change_light?red_time/(red_time+red_amber_time+green_time+amber_time):1;
 const double prob_red_amber = change_light?red_amber_time/(red_time+red_amber_time+green_time+amber_time):0;
 const double prob_green = change_light?green_time/(red_time+red_amber_time+green_time+amber_time):0;
@@ -58,8 +59,8 @@ formula far_section = car_pos <= traffic_light_pos & car_pos >= traffic_light_po
 formula visible_section = car_pos <= traffic_light_pos & car_pos >= traffic_light_pos - far_dist;
 formula toDecision = (near_section & (memory_1 = red | memory_1 = amber));
 formula mid_point = (far_dist - near_dist)/2 + near_dist;
-formula safe_drive1 = (light_signal=red&E_update&car_pos<=traffic_light_pos_1)=>((distance+car_pos)<=traffic_light_pos_1);
-formula safe_drive2 = (light_signal=red&E_update&car_pos<=traffic_light_pos_2)=>((distance+car_pos)<=traffic_light_pos_2);
+formula safe_drive1 = (light_signal=red&road_update&car_pos<=traffic_light_pos_1)=>((distance+car_pos)<=traffic_light_pos_1);
+formula safe_drive2 = (light_signal=red&road_update&car_pos<=traffic_light_pos_2)=>((distance+car_pos)<=traffic_light_pos_2);
 formula safe_drive = safe_drive1 & safe_drive2;
 formula non_stop = ((car_pos<(traffic_light_pos-5))&!((initial_speed = 0)&(assist = 0)&(decision=keep_speed|decision=accelerate))) => (velocity>0);
 formula reach_end = (car_pos = N) & (near_point = N) & (far_point = N); 
@@ -73,10 +74,10 @@ formula a = (assist_mode)?(((decision = accelerate)?acceleration : ((decision = 
 formula acc = a>=max_dec?(a<=max_acc?a:max_acc):max_dec;
 formula v = (acc*t + velocity) > 0 ?(acc*t + velocity) : 0;
 const int t = 2;
-formula d = 2*acc + velocity*t; //0.5*a*pow(t,2) + v*t + car_pos , double is not supported
+formula d = 2*acc + velocity*t; //0.5*a*pow(t,2) + v*t,  t=2
 
 module Monitor
-near_point : [0..N]; // range of location of near point
+near_point : [0..N]; // current position of near point 
 far_point : [0..N];
 near_set : bool init false; //determine to find or set near point
 far_set : bool init false; //determine to find or set far point
@@ -86,65 +87,65 @@ far_distracted : bool init false;
 
 memory_1 : [no_sign..amber];
 memory_1_dist : [-1..N];
-memory_1_limit : [1..maximum_speed] init maximum_speed;
+memory_1_limit : [1..maximum_speed] init maximum_speed; //speed limit for the road in driver's memory
 memory_2 : [no_sign..amber];
 memory_2_dist : [-1..N];
-memory_3 : [no_sign..amber]; //3 time steps before, move to memory 2 after 1 cycle, keep same decision while no memory
+memory_3 : [no_sign..amber]; //objects seen 3 time steps ago, shift to memory 2 at the end of each cycle
 memory_3_dist : [-1..N];
 
 process_near : bool init false; //used for decision making, determine which memory to be recalled
 process_far : bool init false;
 //NEAR POINT
-[set_near] task_active & M_active & !near_set & !process_near & !process_far & !M_update -> (near_point' = (car_pos + near_dist <= N)?car_pos + near_dist:N) & (near_set' = true);
+[set_near] task_active & M_active & !near_set & !process_near & !process_far & !M_update -> (near_point' = (car_pos + near_dist <= N)?car_pos + near_dist:N) & (near_set' = true); //locate near point
 [] task_active & M_active & near_set & !process_near & !far_set & !near_found & !M_update -> 
 (1-near_distracted_prob):(memory_1' = (near_section)?light_signal : (car_behind_light?memory_1:no_sign)) & (memory_1_dist' = near_section?(car_light_dist) : (car_behind_light?memory_1_dist:-1)) & (near_found' = true) & (near_distracted' = false) & (memory_1_limit' = road_speed_limit)
-+ near_distracted_prob:(process_near' = true) & (D_active' = (toDecision)?true : false) & (M_active' = (toDecision)?false : true) & (near_found' = true) & (near_distracted' = true); //find near_point
-[] task_active & M_active & near_set & !process_near & !far_set & near_found & !M_update -> (process_near' = true) & (D_active' = (toDecision)?true : false) & (M_active' = (toDecision)?false : true); //decide whether to set far point or take control
++ near_distracted_prob:(process_near' = true) & (D_active' = (toDecision)?true : false) & (M_active' = (toDecision)?false : true) & (near_found' = true) & (near_distracted' = true); //find objects at near point
+[] task_active & M_active & near_set & !process_near & !far_set & near_found & !M_update -> (process_near' = true) & (D_active' = (toDecision)?true : false) & (M_active' = (toDecision)?false : true); //decide whether to set far point or take control of the car
 
 //FAR POINT
-[set_far] task_active & M_active & near_set & process_near & !far_set & near_found & !M_update -> (far_point' =  (car_pos + far_dist <= N)?(car_pos + far_dist) : N) & (far_set' = true) & (process_near' = false);
+[set_far] task_active & M_active & near_set & process_near & !far_set & near_found & !M_update -> (far_point' =  (car_pos + far_dist <= N)?(car_pos + far_dist) : N) & (far_set' = true) & (process_near' = false); //locate far point
 [] task_active & M_active & far_set & !process_far & !M_update -> 
 (1-far_distracted_prob):(memory_1' = far_section?light_signal : (!car_infront_of_light)?memory_1:no_sign) & (memory_1_dist' = visible_section?(car_light_dist) : -1) & 
 (D_active' = true) & (M_active' = false) & (process_far' = true) & (far_distracted' = false) & (memory_1_limit' = road_speed_limit) +
-far_distracted_prob:(D_active' = true) & (M_active' = false) & (process_far' = true) & (far_distracted' = true); //find far_point
+far_distracted_prob:(D_active' = true) & (M_active' = false) & (process_far' = true) & (far_distracted' = true); //find objects at far point
 
 //UPDATE
 [] task_active & M_active & M_update & !E_update -> (near_set' = false) & (far_set' = false) & (process_far' = false) & (process_near' = false) & (near_found' = false) & (M_update' = false) & 
 (memory_2' = ((!car_infront_of_light) & memory_1 != no_sign)?memory_1:no_sign) & (memory_2_dist' = (memory_1 != no_sign & !car_infront_of_light & memory_1_dist - distance > -1)?(memory_1_dist - distance):-1) &
 (memory_3' = ((!car_infront_of_light) & memory_2 != no_sign)?memory_2:no_sign) & (memory_3_dist' = (memory_2 != no_sign & !car_infront_of_light & memory_2_dist - distance > -1)?(memory_2_dist - distance):-1) & 
-(memory_1' = no_sign) & (memory_1_dist' = -1) & (memory_1_limit' = maximum_speed);
+(memory_1' = no_sign) & (memory_1_dist' = -1) & (memory_1_limit' = maximum_speed); //memory shift
 endmodule
 
 module Decision_Making
-decision : [keep_speed..brake] init keep_speed; //0: keep pace, 1: acceleration, 2: deceleration, 3: brake
-//*************************Decsion making at near point**************************************
+decision : [keep_speed..brake] init keep_speed; //0: keeping the same speed, 1: acceleration, 2: deceleration, 3: applying brake
+//*************************Decsion making for near point**************************************
 [] task_active & D_active & near_set & !far_set & process_near & (memory_1 = red) -> 1:(decision' = brake) & (D_active' = false) & (C_active' = true); //apply brake if red light is at near point
 [] task_active & D_active & near_set & !far_set & process_near & (memory_1 = amber) -> 1:(decision' = brake) & (D_active' = false) & (C_active' = true); //apply brake or accelerate if amber light is at near point
 //**************************************************************************************
 //RED LIGHT
 [] task_active & D_active & process_far & ((memory_1 = red & memory_1_dist <= mid_point) | (memory_2 = red & memory_2_dist <= mid_point & memory_1 = no_sign) | (memory_3 = red & memory_3_dist <= mid_point & memory_1 = no_sign & memory_2 = no_sign)) -> 
-1:(decision' = (velocity >= medium_speed)?brake : ((velocity > slow_speed)?decelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed or decelerate if red light is at far point(near)
+1:(decision' = (velocity >= medium_speed)?brake : ((velocity > slow_speed)?decelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed, apply brake or decelerate if red light is at far point(near)
 [] task_active & D_active & process_far & ((memory_1 = red & memory_1_dist > mid_point) | (memory_2 = red & memory_2_dist > mid_point & memory_1 = no_sign) | (memory_3 = red & memory_3_dist > mid_point & memory_1 = no_sign & memory_2 = no_sign)) -> 
-1:(decision' = (velocity > medium_speed)?brake : ((velocity > slow_speed)?decelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed if red light is at far point(far)
+1:(decision' = (velocity > medium_speed)?brake : ((velocity > slow_speed)?decelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed, apply brake or decelerate if red light is at far point(far)
 
 //RED-amber LIGHT
 [] task_active & D_active & process_far & ((memory_1 = red_amber) | (memory_2 = red_amber & memory_1 = no_sign) | (memory_3 = red_amber & memory_1 = no_sign & memory_2 = no_sign)) -> 
-1:(decision' = (velocity > memory_1_limit)?decelerate : (velocity < medium_speed)?accelerate : keep_speed) & (D_active' = false) & (C_active' = true); //keep speed or accelerate if red-amber light is at far point(far)
+1:(decision' = (velocity > memory_1_limit)?decelerate : (velocity < medium_speed)?accelerate : keep_speed) & (D_active' = false) & (C_active' = true); //keep speed, decelerate or accelerate if red-amber light is at far point
 
 //GREEN LIGHT
 [] task_active & D_active & process_far & ((memory_1 = green) | (memory_2 = green & memory_1 = no_sign) | (memory_3 = green & memory_1 = no_sign & memory_2 = no_sign)) -> 
-1:(decision' = (velocity > memory_1_limit)?decelerate : (velocity <= slow_speed)?accelerate : keep_speed) & (D_active' = false) & (C_active' = true); //keep speed or accelerate if green light is at far point(near) and decelerate if velocity is greater than the speed limit point(far)
+1:(decision' = (velocity > memory_1_limit)?decelerate : (velocity <= slow_speed)?accelerate : keep_speed) & (D_active' = false) & (C_active' = true); //keep speed or accelerate if green light is at far point(near) and decelerate if velocity is greater than the speed limit
 
-//amber LIGHT
+//AMBER LIGHT
 [] task_active & D_active & process_far & ((memory_1 = amber & memory_1_dist <= mid_point) | (memory_2 = amber & memory_2_dist <= mid_point & memory_1 = no_sign) | (memory_3 = amber & memory_3_dist <= mid_point & memory_1 = no_sign & memory_2 = no_sign)) -> 
-1:(decision' = ((velocity > slow_speed)?brake : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed or decelerate or apply brake if amber light is at far point(near)
+1:(decision' = ((velocity > slow_speed)?brake : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed or apply brake if amber light is at far point(near)
 [] task_active & D_active & process_far & ((memory_1 = amber & memory_1_dist > mid_point) | (memory_2 = amber & memory_2_dist > mid_point & memory_1 = no_sign) | (memory_3 = amber & memory_3_dist > mid_point & memory_1 = no_sign & memory_2 = no_sign)) -> 
 1:(decision' = (velocity >= medium_speed)?brake : ((velocity > slow_speed)?decelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //keep speed or decelerate or apply brake if amber light is at far point(far)
 
-[] task_active & D_active & process_far & memory = no_sign & !total_distraction -> 1:(decision' = (velocity > memory_1_limit)?decelerate : ((velocity <= medium_speed)?accelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //decide to accelerate if no sign is seen at far point
+[] task_active & D_active & process_far & memory = no_sign & !total_distraction -> 1:(decision' = (velocity > memory_1_limit)?decelerate : ((velocity <= medium_speed)?accelerate : keep_speed)) & (D_active' = false) & (C_active' = true); //decide to accelerate, decelerate or keep speed if no sign is seen at far point. Driver is not totally distracted.
 
 //Distracted with no more memory
-[] task_active & D_active & process_far & memory = no_sign & total_distraction -> 1:(D_active' = false) & (C_active' = true); //keep same decision
+[] task_active & D_active & process_far & memory = no_sign & total_distraction -> 1:(D_active' = false) & (C_active' = true); //keep the same decision
 endmodule
 
 module Control
@@ -156,9 +157,11 @@ assist : [max_dec..0] init 0;
 [] task_active & C_active & decision = brake & v > 0 & (!set_acc | !assist_mode) -> (velocity' = v) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //apply brake
 [] task_active & C_active & ((decision = brake | decision = decelerate) & v <= 0) & (!set_acc | !assist_mode) -> (velocity' = 0) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //vehicle stops
 [] task_active & C_active & decision = keep_speed & (!set_acc | !assist_mode) -> (velocity' = v) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //keep pace
-[] task_active & C_active & decision = accelerate & (!set_acc | !assist_mode) -> (velocity' = (v < maximum_speed)?v : maximum_speed) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //accelerate up to speed limit
+[] task_active & C_active & decision = accelerate & (!set_acc | !assist_mode) -> (velocity' = (v < maximum_speed)?v : maximum_speed) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //accelerate up to the car maximum speed
 [] task_active & C_active & decision = decelerate & v > 0 & (!set_acc | !assist_mode) -> (velocity' = v) & (distance' = d>=0?d:0) & (E_update' = true) & (C_active' = false) & (set_acc' = true); //decelerate
 
+//***************************************ASSISTANCE MODE**************************************
+//assistance acceleration from -1 to -10
 [m10] task_active & C_active & assist_mode & assistive_region & set_acc -> (assist' = -10) & (set_acc' = false);
 [m9] task_active & C_active & assist_mode & assistive_region & set_acc -> (assist' = -9) & (set_acc' = false);
 [m8] task_active & C_active & assist_mode & assistive_region & set_acc -> (assist' = -8) & (set_acc' = false);
@@ -177,20 +180,20 @@ light_signal : [red..amber]; //1:red, 2:red-amber 3: green, 4: amber
 road_update : bool init false;
 counter : [1..8] init 1;
 [] !task_active -> prob_red : (light_signal' = red) & (car_pos' = 0) & (task_active' = true) & (M_active' = true) + prob_red_amber : (light_signal' = red_amber) & (car_pos' = 0) & (task_active' = true) & (M_active' = true) +
-prob_green : (light_signal' = green) & (car_pos' = 0) & (task_active' = true) & (M_active' = true) + prob_amber : (light_signal' = amber) & (car_pos' = 0) & (task_active' = true) & (M_active' = true);
+prob_green : (light_signal' = green) & (car_pos' = 0) & (task_active' = true) & (M_active' = true) + prob_amber : (light_signal' = amber) & (car_pos' = 0) & (task_active' = true) & (M_active' = true); //Initialisation
 
-[] E_update & !change_light & (light_signal = red) -> (E_update' = false) & (road_update' = true); //red, increment of counter
-[] E_update & change_light & (light_signal = red) & (counter < red_time) -> (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //red, increment of counter
-[] E_update & change_light & (light_signal = red) & (counter = red_time) -> (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //red to red-amber, counter set to 1
-[] E_update & change_light & (light_signal = red_amber) & (counter < red_amber_time) ->  (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //red_amber, increment of counter
-[] E_update & change_light & (light_signal = red_amber) & (counter = red_amber_time) ->  (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //red-amber to green, counter set to 1
-[] E_update & change_light & (light_signal = green) & (counter < green_time) -> (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //green, increment of counter
-[] E_update & change_light & (light_signal = green) & (counter = green_time) -> (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //green to amber, counter set to 1
-[] E_update & change_light & (light_signal = amber) & (counter < amber_time) ->  (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //amber, increment of counter
-[] E_update & change_light & (light_signal = amber) & (counter = amber_time) ->  (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //amber to red, counter set to 1
+[] E_update & !change_light & (light_signal = red) -> (E_update' = false) & (road_update' = true); //red, increment the counter
+[] E_update & change_light & (light_signal = red) & (counter < red_time) -> (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //red, increment the counter
+[] E_update & change_light & (light_signal = red) & (counter = red_time) -> (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //red to red-amber, counter is set to 1
+[] E_update & change_light & (light_signal = red_amber) & (counter < red_amber_time) ->  (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //red_amber, increment the counter
+[] E_update & change_light & (light_signal = red_amber) & (counter = red_amber_time) ->  (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //red-amber to green, counter is set to 1
+[] E_update & change_light & (light_signal = green) & (counter < green_time) -> (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //green, increment the counter
+[] E_update & change_light & (light_signal = green) & (counter = green_time) -> (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //green to amber, counter is set to 1
+[] E_update & change_light & (light_signal = amber) & (counter < amber_time) ->  (counter' = counter + 1) & (E_update' = false) & (road_update' = true); //amber, increment the counter
+[] E_update & change_light & (light_signal = amber) & (counter = amber_time) ->  (counter' = 1) & (light_signal' = mod(light_signal,no_of_signal) + 1) & (E_update' = false) & (road_update' = true); //amber to red, counter is set to 1
 
-[] task_active & !E_update & road_update & car_pos + distance < N -> (traffic_light_pos' = (car_pos + distance > traffic_light_pos_1)?traffic_light_pos_2:traffic_light_pos_1) & (car_pos' = car_pos + distance) & (road_update' = false) & (M_active' = true) & (M_update' = true); //update, road_sec unchanged if vehicle remains stationary at red light
-[] task_active & !E_update & road_update & car_pos + distance >= N & car_pos < N -> (car_pos' = N) & (M_active' = true) & (M_update' = true) & (road_update' = false);
+[] task_active & !E_update & road_update & car_pos + distance < N -> (traffic_light_pos' = (car_pos + distance > traffic_light_pos_1)?traffic_light_pos_2:traffic_light_pos_1) & (car_pos' = car_pos + distance) & (road_update' = false) & (M_active' = true) & (M_update' = true); //update car position
+[] task_active & !E_update & road_update & car_pos + distance >= N & car_pos < N -> (car_pos' = N) & (M_active' = true) & (M_update' = true) & (road_update' = false); //update car position
 [] task_active & !E_update & road_update & car_pos = N -> true;
 endmodule
 
