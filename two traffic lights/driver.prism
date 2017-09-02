@@ -1,6 +1,6 @@
 mdp
 
-const int N = 240; //road length
+const int N = 270; //road length
 const int near_dist = 4; //distance between vehicle and near point in meters
 const int far_dist = 40 + near_dist; //distance between vehicle and far point in terms of meters
 const int max_dec = -10; //maximum deceleration for the assistance system
@@ -23,7 +23,7 @@ const double far_distracted_prob; //probability of being distracted while monito
 //*************************Control*********************************
 const int initial_speed;
 const int maximum_speed = 38;
-const int acceleration = 1;
+const int acceleration = 3;
 const int deceleration = -1;
 const int braking = -2;
 const int road_speed_limit = 9;
@@ -59,8 +59,8 @@ formula far_section = car_pos <= traffic_light_pos & car_pos >= traffic_light_po
 formula visible_section = car_pos <= traffic_light_pos & car_pos >= traffic_light_pos - far_dist;
 formula toDecision = (near_section & (memory_1 = red | memory_1 = amber));
 formula mid_point = (far_dist - near_dist)/2 + near_dist;
-formula safe_drive1 = (light_signal=red&road_update&car_pos<=traffic_light_pos_1)=>((distance+car_pos)<=traffic_light_pos_1);
-formula safe_drive2 = (light_signal=red&road_update&car_pos<=traffic_light_pos_2)=>((distance+car_pos)<=traffic_light_pos_2);
+formula safe_drive1 = (light_signal=red&E_update&car_pos<=traffic_light_pos_1)=>((distance+car_pos)<=traffic_light_pos_1);
+formula safe_drive2 = (light_signal=red&E_update&car_pos<=traffic_light_pos_2)=>((distance+car_pos)<=traffic_light_pos_2);
 formula safe_drive = safe_drive1 & safe_drive2;
 formula non_stop = ((car_pos<(traffic_light_pos-5))&!((initial_speed = 0)&(assist = 0)&(decision=keep_speed|decision=accelerate))) => (velocity>0);
 formula reach_end = (car_pos = N) & (near_point = N) & (far_point = N); 
